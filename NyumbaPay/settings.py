@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@x4#wr2!ja4rfhke-k2&vrphv2scmh!!-4!%gp5ip-=63-bm0#'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-@x4#wr2!ja4rfhke-k2&vrphv2scmh!!-4!%gp5ip-=63-bm0#')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -80,11 +81,11 @@ WSGI_APPLICATION = 'NyumbaPay.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'nyumbapay_db',
-        'USER': 'your_username',
-        'PASSWORD': 'your_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DATABASE_NAME', 'nyumbapay_db'),
+        'USER': os.getenv('DATABASE_USER', 'your_username'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'your_password'),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
     }
 }
 
@@ -143,7 +144,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # Mpesa Daraja Settings (replace with actual values)
-MPESA_CONSUMER_KEY = 'your_consumer_key'
-MPESA_CONSUMER_SECRET = 'your_consumer_secret'
-MPESA_SHORTCODE = 'your_shortcode'
-MPESA_PASSKEY = 'your_passkey'
+MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY', 'your_consumer_key')
+MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET', 'your_consumer_secret')
+MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE', 'your_shortcode')
+MPESA_PASSKEY = os.getenv('MPESA_PASSKEY', 'your_passkey')
