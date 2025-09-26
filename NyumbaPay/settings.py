@@ -141,3 +141,9 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
+
+# Mpesa Daraja Settings (replace with actual values)
+MPESA_CONSUMER_KEY = 'your_consumer_key'
+MPESA_CONSUMER_SECRET = 'your_consumer_secret'
+MPESA_SHORTCODE = 'your_shortcode'
+MPESA_PASSKEY = 'your_passkey'

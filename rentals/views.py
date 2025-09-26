@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from .models import Property, Booking, Payment
 from .serializers import PropertySerializer, BookingSerializer, PaymentSerializer, UserSignupSerializer
 from .permissions import IsLandlord, IsTenant
-import requests
+from .mpesa_utils import initiate_stk_push
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -86,9 +86,20 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Booking not found or not approved'}, status=status.HTTP_400_BAD_REQUEST)
 
     def _initiate_mpesa_stk_push(self, payment):
-        # Mpesa integration logic here
-        # For now, return mock response
-        return {'message': 'STK Push initiated', 'payment_id': payment.id}
+        response = initiate_stk_push(
+            phone_number=payment.phone_number,
+            amount=float(payment.amount),
+            account_reference=f"NYUMBAPAY_{payment.id}",
+            transaction_desc="Rent Payment"
+        )
+        if 'ResponseDescription' in response and response['ResponseDescription'] == 'Success':
+            payment.transaction_id = response.get('CheckoutRequestID', '')
+            payment.save()
+            return {'message': 'STK Push initiated successfully', 'payment_id': payment.id, 'transaction_id': payment.transaction_id}
+        else:
+            payment.status = 'failed'
+            payment.save()
+            return {'error': 'Failed to initiate STK Push', 'details': response}
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -105,3 +116,13 @@ def signup(request):
             }
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework.views import APIView
+from rest_framework import status as http_status
+from .mpesa_utils import handle_mpesa_callback
+
+class MpesaCallbackView(APIView):
+    def post(self, request):
+        data = request.data
+        handle_mpesa_callback(data)
+        return Response({'status': 'success'}, status=http_status.HTTP_200_OK)
